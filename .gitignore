@@ -1,6 +1,6 @@
 /.env
-/alloy/data/
-/grafana/data/
-/loki/data/
-/prometheus/data/
+/services/alloy/data/
+/services/grafana/data/
+/services/loki/data/
+/services/prometheus/data/
 

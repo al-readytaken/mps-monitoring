@@ -5,9 +5,9 @@ services:
     profiles: ["setup"]
     user: "0:0"
     volumes:
-      - ./prometheus/data:/target/prometheus
-      - ./loki/data:/target/loki
-      - ./grafana/data:/target/grafana
+      - ./services/prometheus/data:/target/prometheus
+      - ./services/loki/data:/target/loki
+      - ./services/grafana/data:/target/grafana
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -25,8 +25,8 @@ services:
     restart: unless-stopped
     user: "65534:65534"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/data:/prometheus
+      - ./services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./services/prometheus/data:/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
@@ -45,8 +45,8 @@ services:
     restart: unless-stopped
     user: "10001:10001"
     volumes:
-      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
-      - ./loki/data:/loki
+      - ./services/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - ./services/loki/data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     ports:
       - "${BIND_IP}:${LOKI_PORT}:3100"
@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
     privileged: true
     volumes:
-      - ./alloy/alloy.alloy:/etc/alloy/config.alloy:ro
+      - ./services/alloy/alloy.alloy:/etc/alloy/config.alloy:ro
       - ${DOCKER_CONTAINERS_DIR}:/var/lib/docker/containers:ro
       - ${DOCKER_SOCK}:/var/run/docker.sock:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
@@ -80,10 +80,10 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_USERS_DEFAULT_THEME: dark
     volumes:
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
-      - ./grafana/data:/var/lib/grafana
+      - ./services/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./services/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./services/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./services/grafana/data:/var/lib/grafana
     ports:
       - "${BIND_IP}:${GRAFANA_PORT}:3000"
     networks:
