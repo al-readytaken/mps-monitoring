@@ -1,0 +1,6 @@
+/.env
+/alloy/data/
+/grafana/data/
+/loki/data/
+/prometheus/data/
+
