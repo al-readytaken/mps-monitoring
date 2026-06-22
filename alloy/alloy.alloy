@@ -1,0 +1,63 @@
+// Grafana Alloy configuration for shipping Docker container logs to Loki.
+// Discovers running containers via the Docker socket, labels them, filters
+// out the monitoring stack, and tails each container's JSON log file.
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+
+  // Include only running containers so we don't tail stopped ones.
+  filter {
+    name   = "status"
+    values = ["running"]
+  }
+}
+
+discovery.relabel "container_logs" {
+  targets = discovery.docker.containers.targets
+
+  // Set a stable job label from the container name (strip leading "/").
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "job"
+    replacement   = "docker/$1"
+  }
+
+  // Build the __path__ label that loki.source.file expects:
+  //   /var/lib/docker/containers/<id>/<id>-json.log
+  rule {
+    source_labels = ["__meta_docker_container_id"]
+    target_label  = "__path__"
+    replacement   = "/var/lib/docker/containers/$1/$1-json.log"
+  }
+
+  // Useful labels.
+  rule {
+    source_labels = ["__meta_docker_container_image"]
+    target_label  = "image"
+  }
+
+  // Drop the monitoring stack itself so we don't ship our own logs.
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(prometheus|loki|alloy|grafana)"
+    action        = "drop"
+  }
+}
+
+loki.source.file "container_logs" {
+  targets    = discovery.relabel.container_logs.output
+  forward_to = [loki.process.container_logs.receiver]
+}
+
+loki.process "container_logs" {
+  stage.docker {}
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
