@@ -32,6 +32,7 @@ services:
       - --storage.tsdb.path=/prometheus
       - --storage.tsdb.retention.time=15d
       - --web.enable-lifecycle
+      - --web.enable-remote-write-receiver
     ports:
       - "${BIND_IP}:${PROMETHEUS_PORT}:9090"
     networks:
