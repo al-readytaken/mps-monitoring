@@ -1,6 +1,7 @@
 /.env
 /services/alloy/data/
 /services/grafana/data/
+/services/grafana/grafana.ini
 /services/loki/data/
 /services/prometheus/data/
 
