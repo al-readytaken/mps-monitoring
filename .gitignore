@@ -3,5 +3,7 @@
 /services/grafana/data/
 /services/grafana/grafana.ini
 /services/loki/data/
+/services/loki/loki-config.yml
 /services/prometheus/data/
+/services/prometheus/prometheus.yml
 
